@@ -721,22 +721,18 @@ export default function App() {
     setUploadFileSize(`${(file.size / 1024).toFixed(1)} KB`);
     setIsReadingFile(true);
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result || '';
-      setNewDocContent(typeof text === 'string' ? text : `[Binary document: ${file.name}]`);
-      if (!newDocTitle) {
-        setNewDocTitle(file.name.replace(/\.[^/.]+$/, ''));
-      }
-      setIsReadingFile(false);
-      triggerToast(`File "${file.name}" loaded successfully!`, 'info');
-    };
-    reader.onerror = () => {
-      setIsReadingFile(false);
-      triggerToast('Unable to read file contents.', 'alert');
-    };
-    reader.readAsText(file);
-  };
+    const handleFileUpload = (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  // Revoke the previous Object URL to avoid memory leaks
+  if (fileUrl) {
+    URL.revokeObjectURL(fileUrl);
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+  setFileUrl(objectUrl);
+};
 
   const handleSaveDocument = (e) => {
     e.preventDefault();
